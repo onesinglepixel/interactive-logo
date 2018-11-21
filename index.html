@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>One Single Pixel - Digital Consultants</title>
+ 
+ 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> 
+ 	
+ 	<link href="https://fonts.googleapis.com/css?family=Lato|Open+Sans|Roboto" rel="stylesheet">   
+ 
+<script>
+window.onload = function() {
+var canvasInteractive = document.getElementById('canvas-interactive');
+var canvasReference = document.getElementById('canvas-reference');
+ 
+var contextInteractive = canvasInteractive.getContext('2d');
+var contextReference = canvasReference.getContext('2d');
+
+var image = document.getElementById('img');
+ 
+var width = canvasInteractive.width = canvasReference.width = window.innerWidth;
+var height = canvasInteractive.height = canvasReference.height = window.innerHeight;
+ 
+var logoDimensions = {
+    x: 880,
+    y: 420
+};
+ 
+var center = {
+    x: width / 2,
+    y: height / 2
+};
+ 
+var logoLocation = {
+    x: center.x - logoDimensions.x / 2,
+    y: center.y - logoDimensions.y / 2
+};
+ 
+var mouse = {
+    radius: Math.pow(100, 2),
+    x: 0,
+    y: 0
+};
+ 
+var particleArr = [];
+var particleAttributes = {
+    friction: 0.95,
+    ease: 0.19,
+    spacing: 9,
+    size: 8,
+    color: "#4c9d2f"
+};
+
+function Particle(x, y, rgba) {
+    this.x = this.originX = x;
+    this.y = this.originY = y;
+    this.rx = 0;
+    this.ry = 0;
+    this.vx = 0;
+    this.vy = 0;
+    this.force = 0;
+    this.angle = 0;
+    this.distance = 0;
+    this.rgba = rgba;
+}
+ 
+Particle.prototype.update = function() {
+    this.rx = mouse.x - this.x;
+    this.ry = mouse.y - this.y;
+    this.distance = this.rx * this.rx + this.ry * this.ry;
+    this.force = -mouse.radius / this.distance;
+    if(this.distance < mouse.radius) {
+         this.angle = Math.atan2(this.ry, this.rx);
+         this.vx += this.force * Math.cos(this.angle);
+         this.vy += this.force * Math.sin(this.angle);
+    }
+    this.x += (this.vx *= particleAttributes.friction) + (this.originX - this.x) * particleAttributes.ease;
+    this.y += (this.vy *= particleAttributes.friction) + (this.originY - this.y) * particleAttributes.ease;
+};
+
+function init() {
+    contextReference.drawImage(image,logoLocation.x, logoLocation.y);
+    var pixels = contextReference.getImageData(0, 0, width, height).data;
+    var index;
+    var rgba;
+    for(var y = 0; y < height; y += particleAttributes.spacing) {
+        for(var x = 0; x < width; x += particleAttributes.spacing) {
+            index = (y * width + x) * 4;
+            var cdata = contextReference.getImageData(x, y, 1, 1).data;
+			rgba = 'rgba(' + cdata[0] + ', ' + cdata[1] +', ' + cdata[2] + ', ' + (255) + ')';            
+            if(pixels[++index] > 0) {
+                particleArr.push(new Particle(x, y, rgba));
+            }
+        }
+    }
+};
+init();
+
+function update() {
+     for(var i = 0; i < particleArr.length; i++) {
+         var p = particleArr[i];
+         p.update();
+     }
+};
+
+
+function render() {
+     contextInteractive.clearRect(0, 0, width, height);
+     for(var i = 0; i < particleArr.length; i++) {
+         var p = particleArr[i];
+         contextInteractive.fillStyle = p.rgba;
+         contextInteractive.fillRect(p.x, p.y, particleAttributes.size, particleAttributes.size);
+     }
+};
+
+function animate() {
+ update();
+ render();
+ requestAnimationFrame(animate);
+}
+animate();
+document.body.addEventListener("mousemove", function(event) {
+ mouse.x = event.clientX;
+ mouse.y = event.clientY;
+});
+ 
+document.body.addEventListener("touchstart", function(event) {
+ mouse.x = event.changedTouches[0].clientX;
+ mouse.y = event.changedTouches[0].clientY;
+}, false);
+ 
+document.body.addEventListener("touchmove", function(event) {
+ event.preventDefault();
+ mouse.x = event.targetTouches[0].clientX;
+ mouse.y = event.targetTouches[0].clientY;
+}, false);
+ 
+document.body.addEventListener("touchend", function(event) {
+ event.preventDefault();
+ mouse.x = 0;
+ mouse.y = 0;
+}, false);
+};	
+	
+</script>
+
+	
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<meta charset="UTF-8">
+		<title>example</title>
+		<style type="text/css">
+			html, body {
+				margin: 0px;
+				position: relative;
+				background-color: #303030;
+			}
+			canvas {
+				display:  block;
+				position: absolute;
+				top:     0;
+				left:    0;
+				z-index: 1;
+			}
+			.home {
+			background-image: url("example_files/bg.jpg")	
+			}
+			#img {
+				display: none;
+			}
+			.logo-block {
+				width: 0px;
+				/* margin: auto; */
+				position: fixed;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				margin-top: 30px;
+				border-color: #6fbc1f !important;
+				border-left-width: 15px !important;
+			}
+			.spacer {
+				margin-left: 40px;
+			}
+			.section { 
+				height: 101vh; 
+			}
+			.first {
+				background-color: white;
+			}
+			.lefthandblock {
+				width: 50%;
+				font-family: 'Open Sans', sans-serif;	
+				font-size: 2em;
+
+				text-align: right;		
+			}
+			.second {
+				background-color: #6fbc1f;
+			}
+			
+			
+		 /* Style the header */
+			.header {
+			  background: #555;
+			  color: #f1f1f1;
+			  padding: 10px 16px;
+			  /*-webkit-transition: all 0.5s ease;
+    		  -moz-transition: all 0.5s ease;
+    		  -o-transition: all 0.5s ease;
+    		  transition: all 0.5s ease;*/
+			}
+			h2 {
+			margin: 0px;
+			font-family: 'Open Sans', sans-serif;
+			}
+			
+			/* The sticky class is added to the header with JS when it reaches its scroll position */
+			.sticky {
+			  position: fixed;
+			  top: 0;
+			  width: 100%;
+			  //*-webkit-transition: all 0.5s ease;
+    		  -moz-transition: all 0.5s ease;
+    		  -o-transition: all 0.5s ease;
+    		  transition: all 0.5s ease;*/
+			}
+			
+			/* Add some top padding to the page content to prevent sudden quick movement (as the header gets a new position at the top of the page (position:fixed and top:0) */
+			.sticky + .first {
+			  padding-top: 102px;
+			} 
+			
+			
+			
+			
+
+/*    font-family: 'Roboto', sans-serif;
+
+    font-family: 'Lato', sans-serif;
+
+    font-family: 'Open Sans', sans-serif; *\
+
+
+</style>
+</head>
+<body>
+		
+<div class="section home">
+		<img src="example_files/OSP.svg" alt="..." id="img">
+		<canvas id="canvas-interactive" width="1359" height="872"></canvas>
+		<canvas id="canvas-reference" width="1359" height="872"></canvas>
+		
+		<div class="logo-block" id="logoblock">		
+		<div class="spacer"><img src="example_files/OSP-TEXT.svg" alt="..." id="img-text"></div>
+		</div>
+
+
+</div>
+
+<div class="section first">
+
+<div class="header" id="myHeader">
+  <h2>Home | About Us | Work | Sevices | Contact</h2>
+</div> 
+
+<div class="lefthandblock">
+In today's digital focused marketplace we believe it is the attention to detail that will set you apart from the crowd. We believe One Single Pixel can make the difference.
+</div>
+	
+</div>
+
+<div class="section second"></div>
+
+
+<script>
+
+window.onscroll = function() {myFunction()};
+
+var header = document.getElementById("myHeader");
+var sticky = header.offsetTop;
+
+function myFunction() {
+  if (window.pageYOffset >= sticky) {
+    header.classList.add("sticky");
+    document.getElementById("logoblock").style.position = "absolute";
+    document.getElementById("logoblock").style.border = "solid";
+  } else {
+    header.classList.remove("sticky");
+    document.getElementById("logoblock").style.position = "fixed";
+    document.getElementById("logoblock").style.border = "none";
+  }
+}
+
+</script>
+
+</body></html>
