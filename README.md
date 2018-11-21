@@ -1,4 +1,4 @@
-# interactive-logo
+# Interactive Logo
 Javascript and HTML5 Canvas powered interactive logo using any supplied image
 
 # How to Use
